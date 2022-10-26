@@ -9,11 +9,12 @@ namespace CashRegisterTest
 {
     public class SpyPrinter : Printer
     {
+        public string PrintContent { get; set; }
         public bool HasPrinted { get; set; }
         public override void Print(string content)
         {
-            base.Print(content);
             HasPrinted = true;
+            PrintContent = content;
         }
     }
 }
