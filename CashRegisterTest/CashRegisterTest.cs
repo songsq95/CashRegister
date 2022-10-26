@@ -1,7 +1,8 @@
 namespace CashRegisterTest
 {
 	using CashRegister;
-	using Xunit;
+    using Moq;
+    using Xunit;
 
 	public class CashRegisterTest
 	{
@@ -15,7 +16,6 @@ namespace CashRegisterTest
 			//when
 			cashRegister.Process(purchase);
 			//then
-			//verify that cashRegister.process will trigger print
 			Assert.True(printer.HasPrinted);
 		}
 
@@ -29,9 +29,34 @@ namespace CashRegisterTest
 			//when
 			cashRegister.Process(purchase);
 			//then
-			//verify that cashRegister.process will trigger print
 			Assert.Equal("stub content", printer.PrintContent);
+		}
+
+		[Fact]
+		public void Should_print_purchase_content_when_run_process_given_stub_purchase_moc()
+		{
+			// Given
+			var spyPrinter = new Mock<Printer>();
+			var cashRegister = new CashRegister(spyPrinter.Object);
+			var stubPurchase = new Mock<Purchase>();
+			stubPurchase.Setup(x => x.AsString()).Returns("moq stub content");
+			// when
+			cashRegister.Process(stubPurchase.Object);
+			// then
+			spyPrinter.Verify(_ => _.Print("moq stub content"));
+		}
+
+		[Fact]
+		public void Should_throw_exception_when_print_is_out_of_paper_use_moc()
+		{
+			// Given
+			var stubPrinter = new Mock<Printer>();
+			var cashRegister = new CashRegister(stubPrinter.Object);
+			var purchase = new Purchase();
+			stubPrinter.Setup(x => x.Print(It.IsAny<string>())).Throws<PrinterOutOfPaperException>();
+			// when
+			// then
+			Assert.Throws<HardwareException>(() => cashRegister.Process(purchase));
 		}
 	}
 }
-
